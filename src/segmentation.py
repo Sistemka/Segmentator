@@ -1,6 +1,6 @@
-import os
 import uuid
 from pathlib import Path
+import shutil
 
 import tensorflow as tf
 import matplotlib.image as mpimg
@@ -14,7 +14,7 @@ from settings.paths import (
 )
 
 
-def make_segmentation_mask(image, mask, rois, i):
+def make_segmentation_mask(image, mask, rois):
     img = image.copy()
     img[:, :, 0] *= mask
     img[:, :, 1] *= mask
@@ -27,16 +27,19 @@ def make_segmentation_mask(image, mask, rois, i):
 
 def save_cropped_images(res, image):
     cropped_images = []
+    cropped_images_dir = str(uuid.uuid4())
 
     for i in range(res['masks'].shape[-1]):
         mask = res['masks'][:, :, i]
-        cropped_image = make_segmentation_mask(image, mask, res['rois'][i], i)
+        cropped_image = make_segmentation_mask(image, mask, res['rois'][i])
 
-        cropped_image_path = Path(TMP_IMAGES_DIR, f"{uuid.uuid4()}.jpg")
+        cropped_image_path = Path(TMP_IMAGES_DIR, cropped_images_dir, f"{uuid.uuid4()}.jpg")
+        cropped_image_path.parent.mkdir(parents=True, exist_ok=True)
+
         imageio.imwrite(cropped_image_path, cropped_image)
         cropped_images.append(cropped_image_path)
 
-    return cropped_images
+    return cropped_images, cropped_images_dir
 
 
 def load_segmentator():
@@ -53,19 +56,27 @@ def load_segmentator():
     image = mpimg.imread(PRELOAD_IMAGE_PATH)
     r = model.detect([image], verbose=0)[0]
 
-    def segmentate(image_path):
+    def segmentate(image_path, return_vector=False):
         image = mpimg.imread(image_path)
         results = model.detect([image], verbose=0)[0]
-        cropped_images = save_cropped_images(res=results, image=image)
+        cropped_images, cropped_images_dir = save_cropped_images(res=results, image=image)
 
-        vectors = []
-        for image in cropped_images:
-            vector = image_2_vector.vectorize(image_path=image)
-            vectors.append(vector)
-            image.unlink()
+        if return_vector:
+            vectors = []
+            for image in cropped_images:
+                vector = image_2_vector.vectorize(image_path=image)
+                vectors.append(vector)
+            shutil.rmtree(Path(TMP_IMAGES_DIR, cropped_images_dir))
+            return vectors
 
-        return vectors
-
+        shutil.make_archive(
+            cropped_images_dir,
+            'zip',
+            root_dir=Path(TMP_IMAGES_DIR, cropped_images_dir),
+        )
+        shutil.rmtree(Path(TMP_IMAGES_DIR, cropped_images_dir))
+        return cropped_images_dir
     return segmentate
+
 
 segmentator = load_segmentator()

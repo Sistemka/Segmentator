@@ -1,0 +1,3 @@
+PG_USER=bot
+PG_PASSWORD=1234
+PG_DATABASE=search-engine

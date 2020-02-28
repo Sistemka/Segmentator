@@ -35,6 +35,12 @@ class Segmentation(Resource):
         result = segmentator(image_path, return_vector=return_vector)
         os.remove(image_path)
 
+        if result in None:
+            return jsonify({
+                'error': False,
+                'result': []
+            })
+
         if return_vector is False:
             cropped_files_path = Path(BASE_DIR,  f"{result}.zip")
             cropped_files = io.BytesIO()

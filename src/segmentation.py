@@ -61,6 +61,9 @@ def load_segmentator():
         results = model.detect([image], verbose=0)[0]
         cropped_images, cropped_images_dir = save_cropped_images(res=results, image=image)
 
+        if not cropped_images:
+            return None
+
         if return_vector:
             vectors = []
             for image in cropped_images:

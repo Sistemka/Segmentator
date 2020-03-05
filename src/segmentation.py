@@ -30,7 +30,7 @@ def load_segmentator():
             return None
 
         v = Visualizer(image[:, :, ::-1], metadata=fashion_metadata)
-        v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+        v = v.draw_instance_predictions(outputs['instances'].to('cpu'))
 
         result_images_dir = Path(FILES_DIR, str(uuid.uuid4()))
         result_images_dir.mkdir(exist_ok=True, parents=True)

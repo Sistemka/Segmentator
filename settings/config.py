@@ -9,11 +9,11 @@ from settings.paths import MODEL_DIR
 cfg = get_cfg()
 
 cfg.MODEL.DEVICE = 'cpu'
-cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
+cfg.merge_from_file(model_zoo.get_config_file('COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'))
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 13
 
 
-cfg.MODEL.WEIGHTS = Path(MODEL_DIR, "model_final.pth").as_posix()
+cfg.MODEL.WEIGHTS = Path(MODEL_DIR, 'model_final.pth').as_posix()
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
 
 fashion_metadata = MetadataCatalog.get('fashion').set(

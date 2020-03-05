@@ -11,8 +11,8 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 api = Api(
     app=app,
     doc='/swagger-ui',
-    title='SearchEngine',
-    description='Service to search in our image data base'
+    title='Segmentator',
+    description='Service to segmentate fashion images on picture'
 )
 
 

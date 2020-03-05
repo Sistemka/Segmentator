@@ -1,37 +1,39 @@
-import os
+from pathlib import Path
 
-from dotenv import load_dotenv
+from detectron2.config import get_cfg
+from detectron2 import model_zoo
+from detectron2.data import MetadataCatalog
 
-from settings.paths import BASE_DIR
-from utils.mrcnn.config import Config
+from settings.paths import MODEL_DIR
 
-load_dotenv(
-    os.path.join(BASE_DIR, 'settings', 'env')
-)
-DEVICE = "/cpu:0"
+cfg = get_cfg()
 
-
-class InferenceConfig(Config):
-    # Run detection on one image at a time
-    # Give the configuration a recognizable name
-    # Give the configuration a recognizable name
-    NAME = "fashion"
-    BATCH_SIZE = 1
-
-    IMAGES_PER_GPU = 1
-    # Number of classes (including background)
-    NUM_CLASSES = 1 + 3  # Background + pants +top +boots
-
-    # Number of training steps per epoch
-    STEPS_PER_EPOCH = 125
-
-    # Skip detections with < 90% confidence
-    DETECTION_MIN_CONFIDENCE = 0.9
-
-    IMAGE_MIN_DIM = 512
-    IMAGE_MAX_DIM = 1024
-
-    TRAIN_ROIS_PER_IMAGE = 200
+cfg.MODEL.DEVICE = 'cpu'
+cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
+cfg.MODEL.ROI_HEADS.NUM_CLASSES = 13
 
 
-model_config = InferenceConfig()
+cfg.MODEL.WEIGHTS = Path(MODEL_DIR, "model_final.pth").as_posix()
+cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
+
+fashion_metadata = MetadataCatalog.get('fashion').set(
+            thing_classes=[
+                'short sleeve top',
+                'long sleeve top',
+                'short sleeve outwear',
+                'long sleeve outwear',
+                'vest',
+                'sling',
+                'shorts',
+                'trousers',
+                'skirt',
+                'short sleeve dress',
+                'long sleeve dress',
+                'vest dress',
+                'sling dress'
+            ])
+
+__all__ = [
+    'fashion_metadata',
+    'cfg'
+]

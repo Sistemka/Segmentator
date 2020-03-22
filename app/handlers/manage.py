@@ -19,9 +19,8 @@ ns = Namespace(
 
 
 @ns.route('/segmentation')
-@ns.expect(basic_args)
+@ns.expect(basic_args, segmentation_image_args)
 class Segmentation(Resource):
-    @ns.expect(segmentation_image_args, validate=True)
     def post(self):
         basic_args.parse_args()
         args = segmentation_image_args.parse_args()

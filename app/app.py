@@ -22,5 +22,5 @@ basic_args.add_argument('X-SERVICE-NAME', location='headers', required=True, nul
 segmentation_image_args = reqparse.RequestParser(bundle_errors=True, trim=True)
 segmentation_image_args.add_argument('image', type=FileStorage, location='files', required=True)
 segmentation_image_args.add_argument(
-    'mode', type=fields.String(enum=['box', 'mask']), location='args', default='box'
+    'mode', type=str, location='args', default='box'
 )
